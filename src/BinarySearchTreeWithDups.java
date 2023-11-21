@@ -62,7 +62,10 @@ public class BinarySearchTreeWithDups<T extends Comparable<? super T>> extends B
 		BinaryNode<T> currentNode;
 		Stack<BinaryNode<T>> nodeStack = new Stack<>();
 		nodeStack.push(root);
+
+		int loopTimes =0; //REMOVE
 		while(!nodeStack.isEmpty()){
+			loopTimes++; //remove
 			currentNode = nodeStack.pop();
 			if(target.compareTo(currentNode.getData())==0){
 				count++;
@@ -77,9 +80,11 @@ public class BinarySearchTreeWithDups<T extends Comparable<? super T>> extends B
 
 
 		// consider a loop!
-		
+		System.out.println(loopTimes);
 		return count;
 	}
+
+	private static int loopRecursions;
 
 	// THIS METHOD MUST BE RECURSIVE! 
 	// You are allowed to create a private helper.
@@ -88,38 +93,34 @@ public class BinarySearchTreeWithDups<T extends Comparable<? super T>> extends B
 		// YOUR CODE HERE! 
 			//if(isEmpty()){}
 		// this initial code is meant as a suggestion to get your started- use it or delete it!
-		int count = 0;
+		//int count = 0;
+		loopRecursions=0;
 		BinaryNode<T> rootNode = root;
-				
-		return countGreaterRecursive(rootNode,target,count);
-			
+
+		int answer=countGreaterRecursive(rootNode,target);
+		System.out.println(loopRecursions);
+
+		return answer;
 		//return count;
 	}
 
-	private int countGreaterRecursive(BinaryNode<T> currentRoot, T target,int count){
+	private int countGreaterRecursive(BinaryNode<T> currentRoot, T target){
+		loopRecursions++;
+		int count=0;
 
-		if(target.compareTo(currentRoot.getData())>0){ //if target is greater than root (I THINK), go right
+		if(target.compareTo(currentRoot.getData())>0){ //if target is greater than root, go right
 			if(currentRoot.hasRightChild()){
-				return countGreaterRecursive(currentRoot.getRightChild(),target,count);
+				count+= countGreaterRecursive(currentRoot.getRightChild(),target);
 			}
-		} else if (target.compareTo(currentRoot.getData())==0) { //if target is equal to node, get number of nodes to the right
+		} else if (target.compareTo(currentRoot.getData())<=0) { //if target is equal to node, get number of nodes to the right and add to count
 			if (currentRoot.hasRightChild()) {
-				return currentRoot.getRightChild().getNumberOfNodes();
-			}
-			else{
-				return 0;
-			}
-
-		} else{ // if target is less than root, increment count by all right trees +1, repeat for left trees
-			count ++;
-			if (currentRoot.hasRightChild()){
 				count+= currentRoot.getRightChild().getNumberOfNodes();
 			}
+		} if (target.compareTo(currentRoot.getData())<0){ // if target is less than root, increment count by all right trees +1, repeat for left trees
+			count++;
 			if(currentRoot.hasLeftChild()){
-				return countGreaterRecursive(currentRoot.getLeftChild(),target,count);
+				count+= countGreaterRecursive(currentRoot.getLeftChild(),target);
 			}
-
-
 		}
 		return count;
 
@@ -131,13 +132,31 @@ public class BinarySearchTreeWithDups<T extends Comparable<? super T>> extends B
 		// YOUR CODE HERE!
 		
 		// this initial code is meant as a suggestion to get your started- use it or delete it!
+		int loopTimes =0;
 		int count = 0;
-		BinaryNode<T> rootNode = root;
+		BinaryNode<T> currentRootNode = root;
 		Stack<BinaryNode<T>> nodeStack = new Stack<BinaryNode<T>>();
-		nodeStack.push(rootNode);
+		nodeStack.push(currentRootNode);
+		while(!nodeStack.isEmpty()){
+			loopTimes++;
+			currentRootNode = nodeStack.pop();
+			if (target.compareTo(currentRootNode.getData())>0 && currentRootNode.hasRightChild()){
+				nodeStack.push(currentRootNode.getRightChild());
+			} else if (target.compareTo(currentRootNode.getData())<=0) {
+				if(target.compareTo(currentRootNode.getData())<0){
+					count++;
+					if(currentRootNode.hasLeftChild()){
+						nodeStack.push(currentRootNode.getLeftChild());
+					}
+				}
+				if(currentRootNode.hasRightChild()){
+					count+= currentRootNode.getRightChild().getNumberOfNodes();
+				}
+			}
+		}
 
 		// consider a loop based on the stack!
-		
+		System.out.println(loopTimes);
 		return count;
 	}
 			
@@ -147,8 +166,25 @@ public class BinarySearchTreeWithDups<T extends Comparable<? super T>> extends B
 	// The method can be iterative or recursive.
 	// If you make the method recursive, you might need to comment out the call to the method in Part B.
 	public int countUniqueValues() {
-		// YOUR EXTRA CREDIT CODE HERE! 
-		return 0; // placeholder: replace with your own code
+		if(isEmpty()){
+			return 0;
+		}
+		HashSet<T> uniqueVals = new HashSet<>();
+		BinaryNode<T> currentNode = root;
+		Stack<BinaryNode<T>> nodeStack = new Stack<>();
+		nodeStack.push(currentNode);
+		while(!nodeStack.isEmpty()){
+			currentNode = nodeStack.pop();
+			uniqueVals.add(currentNode.getData());
+			if(currentNode.hasLeftChild()){
+				nodeStack.push(currentNode.getLeftChild());
+			}
+			if(currentNode.hasRightChild()){
+				nodeStack.push(currentNode.getRightChild());
+			}
+		}
+		return uniqueVals.size();
+
 	}
 
 }
